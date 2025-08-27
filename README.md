@@ -3,7 +3,7 @@
 https://www.youtube.com/watch?v=blLLtdv4tvo
 
 https://chatgpt.com/s/t_68ad454177f88191baf757171dc85279
-
+```
 whack_a_zombie/
 ├─ README.md
 ├─ requirements.txt
@@ -30,3 +30,5 @@ whack_a_zombie/
    └─ audio/
       ├─ bgm.mp3
       └─ hit.wav
+
+```
