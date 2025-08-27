@@ -22,14 +22,20 @@ class Zombie:
 
     def check_hit(self, mpos):
         if (mpos is None):
-            return
+            return False
         if self.alive and self.hitbox.collidepoint(mpos):
             self.getHit = True
+            return True
+        return False
 
     def update(self):
         current_time = pygame.time.get_ticks()
         if current_time - self.spawn_time > self.lifetime or self.getHit:
             self.alive = False
+            if self.getHit:
+                return 1
+            return -1
+        return 0
 
 
 # Spawn Zombie at Random Locations
