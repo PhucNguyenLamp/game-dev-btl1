@@ -28,9 +28,9 @@ tombstone_img = pygame.image.load("assets/sprites/tombstone.png")
 SPAWN_LOCATIONS = [(100,100), (200, 100), (300, 100),
                    (100, 200), (200, 200), (300, 200)]
 
-#10 seconds
-LIFE_TIME = 1000 # ms
-SPAWN_INTERVAL = np.random.randint(300,701) # ms
+# 10 seconds
+LIFE_TIME = 10000 # ms
+SPAWN_INTERVAL = 1000 # ms
 last_spawn_time = 0
 zombies = []
 occupied_locations = set()
@@ -67,6 +67,9 @@ while running:
         zombie.draw(screen)
 
     zombies = [z for z in zombies if z.alive]
+
+    for zombie in zombies:
+        zombie.check_hit(click_pos)
 
     debug = font.render('Number of Zombies: ' + str(len(zombies)), True, (255, 255, 255))
     fps_text = font.render(f'FPS: {int(clock.get_fps())}', True, (255, 255, 255))
