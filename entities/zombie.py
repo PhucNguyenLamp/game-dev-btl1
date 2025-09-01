@@ -1,8 +1,15 @@
 import numpy as np
 import pygame
-
+from enum import Enum, auto
 
 # Whack-a-Zombie Game Entity
+class ZState(Enum):
+    SPAWNING = auto()
+    IDLE = auto()
+    HIT = auto()
+    DESPAWNING = auto()
+    EXPIRED = auto()
+
 class Zombie:
     def __init__(self, image, position, lifetime):
         self.image = image

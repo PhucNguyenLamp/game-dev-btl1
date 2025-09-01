@@ -2,9 +2,9 @@ import pygame
 import os
 import numpy as np
 from entities.zombie import Zombie, spawn_zombie
-
-# os.environ["SDL_VIDEO_WINDOW_POS"] = "%d,%d" % (-500, 400)
-# os.environ["SDL_VIDEO_MINIMIZE_ON_FOCUS_LOSS"] = "0"
+from pathlib import Path
+from audio.sound import play_bgm
+from ui.ui import MuteButton
 
 pygame.init()
 pygame.mixer.init()
@@ -12,11 +12,13 @@ pygame.mixer.init()
 screen = pygame.display.set_mode((400, 300))
 pygame.display.set_caption("Whack a Zombie")
 
-pygame.mixer.music.load("assets/audio/bg_music.mp3")
-pygame.mixer.music.play(-1)
-pygame.mixer.music.set_volume(0)  # 0.2 là đẹp
+assets_path = Path(__file__).parent / "assets"
+play_bgm(assets_path)
 
 clock = pygame.time.Clock()
+
+mute_button = MuteButton(350, 10)
+
 
 font = pygame.font.Font("assets/fonts/Terraria.TTF", 32)
 # score = font.render('Whack a Zombie!', True, (255, 255, 255))
@@ -49,7 +51,7 @@ miss = 0
 while running:
     click_pos = None
     screen.blit(bg_img, (0, 0))
-    current_time = pygame.time.get_ticks()
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
@@ -65,6 +67,7 @@ while running:
     zombies = [z for z in zombies if z.alive]
     occupied_locations = {z.position for z in zombies if z.alive}
 
+    current_time = pygame.time.get_ticks()
     if current_time - last_spawn_time > SPAWN_INTERVAL:
         zombie = spawn_zombie(
             zombie_img, SPAWN_LOCATIONS, LIFE_TIME, occupied_locations
@@ -83,9 +86,12 @@ while running:
             miss += 1
         zombie.draw(screen)
 
+    mute_button.toggle(click_pos)
+
     debug = font.render(
         "Number of Zombies: " + str(len(zombies)), True, (255, 255, 255)
     )
+
     fps_text = font.render(f"FPS: {int(clock.get_fps())}", True, (255, 255, 255))
     text = font.render(f"Pos: {last_click_pos}", True, (255, 255, 255))
     score_text = font.render(f"Score: {score}", True, (255, 255, 255))
@@ -99,6 +105,7 @@ while running:
     screen.blit(text, (0, 60))
     screen.blit(score_text, (0, 90))
     screen.blit(accuracy_text, (0, 120))
+    mute_button.draw(screen)
 
     pygame.display.flip()
     clock.tick(60)
