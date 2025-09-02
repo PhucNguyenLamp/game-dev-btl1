@@ -1,10 +1,10 @@
 import pygame
 import os
 import numpy as np
-from entities.zombie import Zombie, spawn_zombie
+from entities.zombie import ZState, Zombie, spawn_zombie
 from pathlib import Path
 from audio.sound import play_bgm
-from ui.ui import MuteButton
+from ui.ui import MuteButton, MouseCursor
 
 pygame.init()
 pygame.mixer.init()
@@ -18,14 +18,16 @@ play_bgm(assets_path)
 clock = pygame.time.Clock()
 
 mute_button = MuteButton(350, 10)
-
+mouse_cursor = MouseCursor(mute_button)
+pygame.mouse.set_visible(False)
 
 font = pygame.font.Font("assets/fonts/Terraria.TTF", 32)
 # score = font.render('Whack a Zombie!', True, (255, 255, 255))
 
 bg_img = pygame.image.load("assets/sprites/bg.png")
-zombie_img = pygame.image.load("assets/sprites/zombie.png")
 tombstone_img = pygame.image.load("assets/sprites/tombstone.png")
+grass_mask_img = pygame.image.load("assets/sprites/grass_mask.png")
+grass_mask_img = pygame.transform.scale(grass_mask_img, (50, 50))
 
 SPAWN_LOCATIONS = [
     (100, 100),
@@ -37,75 +39,78 @@ SPAWN_LOCATIONS = [
 ]
 
 # 10 seconds
-LIFE_TIME = 3000  # ms
+LIFE_DURATION = 3000  # ms
 SPAWN_INTERVAL = 1000  # ms
 last_spawn_time = 0
 zombies = []
 occupied_locations = set()
 
 running = True
-last_click_pos = None
 score = 0
 miss = 0
 
+particles = []
 while running:
-    click_pos = None
-    screen.blit(bg_img, (0, 0))
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-        elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-            click_pos = event.pos
 
-    if click_pos:
-        last_click_pos = click_pos
+        for zombie in zombies:
+            if zombie.handle_event(event, particles):
+                score += 1
 
-    for loc in SPAWN_LOCATIONS:
-        screen.blit(tombstone_img, loc)
+        mute_button.toggle(event)
+        mouse_cursor.handle_event(event)
 
-    zombies = [z for z in zombies if z.alive]
-    occupied_locations = {z.position for z in zombies if z.alive}
+    zombies = [z for z in zombies if z.state != ZState.EXPIRED]
+    occupied_locations = {z.position for z in zombies if z.state != ZState.EXPIRED}
 
     current_time = pygame.time.get_ticks()
     if current_time - last_spawn_time > SPAWN_INTERVAL:
         zombie = spawn_zombie(
-            zombie_img, SPAWN_LOCATIONS, LIFE_TIME, occupied_locations
+            SPAWN_LOCATIONS, LIFE_DURATION, occupied_locations, mute_button
         )
         if zombie:
             zombies.append(zombie)
             last_spawn_time = current_time
 
-    for zombie in zombies:
-        if zombie.check_hit(click_pos):
-            score += 1
+    ## RENDERING
+    screen.blit(bg_img, (0, 0))
+
+    for loc in SPAWN_LOCATIONS:
+        screen.blit(tombstone_img, loc)
 
     for zombie in zombies:
-        status = zombie.update()  # 1 = hit, -1 = miss, 0 = nothing
+        status = zombie.update()
         if status == -1:
             miss += 1
         zombie.draw(screen)
 
-    mute_button.toggle(click_pos)
+    for loc in SPAWN_LOCATIONS:
+        # GRASS MASK
+        screen.blit(grass_mask_img, (loc[0] - tombstone_img.get_width() //2, loc[1] + tombstone_img.get_height()))
 
-    debug = font.render(
-        "Number of Zombies: " + str(len(zombies)), True, (255, 255, 255)
-    )
+    for p in particles:
+        p.update()
+        if not p.alive:
+            particles.remove(p)
+        else: 
+            p.draw(screen)
 
-    fps_text = font.render(f"FPS: {int(clock.get_fps())}", True, (255, 255, 255))
-    text = font.render(f"Pos: {last_click_pos}", True, (255, 255, 255))
+    mute_button.draw(screen)
+
     score_text = font.render(f"Score: {score}", True, (255, 255, 255))
     accuracy = score / (score + miss) if score + miss != 0 else 1
     accuracy_text = font.render(
         f"Accuracy: {accuracy * 100:.2f}%", True, (255, 255, 255)
     )
 
-    screen.blit(fps_text, (0, 0))
-    screen.blit(debug, (0, 30))
-    screen.blit(text, (0, 60))
-    screen.blit(score_text, (0, 90))
-    screen.blit(accuracy_text, (0, 120))
-    mute_button.draw(screen)
+    screen.blit(score_text, (0, 0))
+    screen.blit(accuracy_text, (0, 30))
+
+    mouse_cursor.update()
+    mouse_cursor.draw(screen)
 
     pygame.display.flip()
     clock.tick(60)
