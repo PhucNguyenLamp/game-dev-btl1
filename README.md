@@ -4,7 +4,7 @@
 - Navigate to project root, and run `main.py`, Example: `~\game-dev-btl1> python main.py`
 
 ## interface 
-<img width="502" height="415" alt="interface" src="https://github.com/user-attachments/assets/9d12e899-0090-4023-9bf3-89690f377296" />
+<img width="496" height="410" alt="image" src="https://github.com/user-attachments/assets/2832fc8d-f1de-4d9e-8063-b778d40d3824" />
 
 ## how to play the game
 - left click to hit the zombies
@@ -48,6 +48,7 @@ whack_a_zombie/
       └─ hit.wav
 
 ```
+
 
 
 
