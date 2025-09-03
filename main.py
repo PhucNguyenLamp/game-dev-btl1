@@ -26,8 +26,10 @@ font = pygame.font.Font("assets/fonts/Terraria.TTF", 32)
 
 bg_img = pygame.image.load("assets/sprites/bg.png")
 tombstone_img = pygame.image.load("assets/sprites/tombstone.png")
-grass_mask_img = pygame.image.load("assets/sprites/grass_mask.png")
-grass_mask_img = pygame.transform.scale(grass_mask_img, (50, 50))
+grass_mask_1_img = pygame.image.load("assets/sprites/grass_mask_1.png")
+grass_mask_1_img = pygame.transform.scale(grass_mask_1_img, (50, 50))
+grass_mask_2_img = pygame.image.load("assets/sprites/grass_mask_2.png")
+grass_mask_2_img = pygame.transform.scale(grass_mask_2_img, (50, 50))
 
 SPAWN_LOCATIONS = [
     (100, 100),
@@ -87,9 +89,13 @@ while running:
             miss += 1
         zombie.draw(screen)
 
-    for loc in SPAWN_LOCATIONS:
+    for index, loc in enumerate(SPAWN_LOCATIONS):
         # GRASS MASK
-        screen.blit(grass_mask_img, (loc[0] - tombstone_img.get_width() //2, loc[1] + tombstone_img.get_height()))
+        if index < 3:
+            screen.blit(grass_mask_1_img, (loc[0] - tombstone_img.get_width() //2, loc[1] + tombstone_img.get_height()))
+        else:
+            screen.blit(grass_mask_2_img, (loc[0] - tombstone_img.get_width() //2, loc[1] + tombstone_img.get_height()))
+
 
     for p in particles:
         p.update()

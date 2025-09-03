@@ -51,7 +51,7 @@ class Zombie:
                 self.image,
                 (self.position[0] + self.offset[0], self.position[1] + self.offset[1]),
             )
-            pygame.draw.rect(screen, (255, 0, 0), self.hitbox, 2)
+            # pygame.draw.rect(screen, (255, 0, 0), self.hitbox, 2)
 
     def handle_event(self, event, particles):
         mouse_pos = pygame.mouse.get_pos()
