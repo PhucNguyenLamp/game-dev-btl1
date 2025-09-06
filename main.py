@@ -36,7 +36,7 @@ overlay = GameOverOverlay(font_large, font)
 # score = font.render('Whack a Zombie!', True, (255, 255, 255))
 
 bg_img = pygame.image.load("assets/sprites/bg.png")
-#scaler
+# scaler
 screen_width, screen_height = screen.get_size()
 bg_width, bg_height = bg_img.get_size()
 scale = max(screen_width / bg_width, screen_height / bg_height)
@@ -82,10 +82,11 @@ class GameState:
         self.zombies = []
         self.occupied_locations = set()
         self.time_left_ms = 0
-        self.timer = CountdownTimer(1)
+        self.timer = CountdownTimer(60000)
 
 
 def reset_run(state: "GameState") -> None:
+    pygame.mouse.set_visible(True)
     run_start_screen(screen, assets_path)
     state.zombies = []
     state.occupied_locations = set()
@@ -95,7 +96,7 @@ def reset_run(state: "GameState") -> None:
     state.last_spawn_time = 0
     state.timer.reset()
     state.game_over = False
-
+    pygame.mouse.set_visible(False)
 
 def handle_events(state: "GameState") -> None:
     for event in pygame.event.get():
