@@ -5,6 +5,7 @@ from pathlib import Path
 from particles.Particle import Particle
 
 asset_path = Path("assets")
+DEFAULT_ZOMBIE_HEIGHT = 96  # pixels
 
 
 # Whack-a-Zombie Game Entity
@@ -19,22 +20,41 @@ class ZState(Enum):
 class Zombie:
 
     def __init__(self, position, life_duration, mute_button):
-        self.image = pygame.image.load(asset_path / "sprites" / "zombie.png")
+        idle_img = pygame.image.load(asset_path / "sprites" / "zombie.png")
+        spawn_img = pygame.image.load(asset_path / "sprites" / "zombie_spawn.png")
+        despawn_img = pygame.image.load(asset_path / "sprites" / "zombie_despawn.png")
+
+        def scale_to_height(img: pygame.Surface, target_h: int) -> pygame.Surface:
+            w, h = img.get_size()
+            if h == 0:
+                return img
+            ratio = DEFAULT_ZOMBIE_HEIGHT / h
+            return pygame.transform.smoothscale(img, (int(w * ratio), int(h * ratio)))
+
+        # Scaler
+        self.idle_image = scale_to_height(idle_img, DEFAULT_ZOMBIE_HEIGHT)
+        self.spawn_image = scale_to_height(spawn_img, DEFAULT_ZOMBIE_HEIGHT)
+        self.despawn_image = scale_to_height(despawn_img, DEFAULT_ZOMBIE_HEIGHT)
+
+        # Current sprite starts as spawning image
+        self.image = self.spawn_image
+
+        self.original_position = position
         self.position = (position[0], position[1] + 45)
         self.offset = (-5, -15)
         self.opacity = 255
         self.mute_button = mute_button
 
-        self.state = ZState.SPAWNING
-        self.spawn_duration = 60
+        self.state = ZState.SPAWNING 
+        self.spawn_duration = 60 # 60 frames -> 1 sec
         self.remaining_spawn_duration = self.spawn_duration
 
         self.spawn_start_time = pygame.time.get_ticks()
-        self.life_duration = life_duration
-        self.despawn_duration = 30
+        self.life_duration = life_duration # 3 sec - 1 - 0.5 = 1.5 sec idle
+        self.despawn_duration = 30 # 30 frames -> 0.5 sec
         self.remaining_despawn_duration = self.despawn_duration
 
-        self.movement_offset_y = -45 / self.spawn_duration
+        self.movement_offset_y = -35 / self.spawn_duration
 
         self.hitbox = self.image.get_rect(
             topleft=(
@@ -98,6 +118,8 @@ class Zombie:
 
             if self.remaining_spawn_duration <= 0:
                 self.state = ZState.IDLE
+                # Switch to idle sprite after finish rising
+                self.image = self.idle_image
 
         if (
             current_time - self.spawn_start_time > self.life_duration
@@ -106,6 +128,14 @@ class Zombie:
             return_value = -1
             if self.state == ZState.HIT:
                 return_value = 1
+
+            # Only when hit, switch to despawn sprite; otherwise keep idle
+            if self.state == ZState.HIT:
+                self.image = self.despawn_image
+                self.position = (
+                    self.position[0],
+                    self.position[1] - 30,
+                )
 
             self.state = ZState.DESPAWNING
             return return_value
