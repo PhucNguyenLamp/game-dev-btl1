@@ -5,7 +5,7 @@ from pathlib import Path
 from particles.Particle import Particle
 
 asset_path = Path("assets")
-DEFAULT_ZOMBIE_HEIGHT = 128  # pixels
+DEFAULT_ZOMBIE_HEIGHT = 96  # pixels
 
 
 # Whack-a-Zombie Game Entity

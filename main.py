@@ -48,24 +48,22 @@ bg_offset_y = (new_size[1] - screen_height) // 2
 tombstone_img = pygame.image.load("assets/sprites/tombstone.png")
 # Tombstone size forcer
 orig_w, orig_h = tombstone_img.get_size()
-TARGET_TOMBSTONE_HEIGHT = 128 #pĩels
+TARGET_TOMBSTONE_HEIGHT = 96 #pĩels
 if orig_h > 0:
     scale_ratio = TARGET_TOMBSTONE_HEIGHT / orig_h
     new_size = (int(orig_w * scale_ratio), int(orig_h * scale_ratio))
     tombstone_img = pygame.transform.smoothscale(tombstone_img, new_size)
 
-grass_mask_1_img = pygame.image.load("assets/sprites/grass_mask_1.png")
-grass_mask_1_img = pygame.transform.scale(grass_mask_1_img, (50, 50))
-grass_mask_2_img = pygame.image.load("assets/sprites/grass_mask_2.png")
-grass_mask_2_img = pygame.transform.scale(grass_mask_2_img, (50, 50))
+grass_mask = pygame.image.load("assets/sprites/grass_mask.png")
+grass_mask = pygame.transform.scale(grass_mask, (96, 40))
 
 SPAWN_LOCATIONS = [
-    (200, 400),
-    (450, 400),
-    (700, 400),
-    (200, 500),
-    (450, 500),
-    (700, 500),
+    (150, 325),
+    (400, 325),
+    (650, 325),
+    (150, 475),
+    (400, 475),
+    (650, 475),
 ]
 
 # 10 seconds
@@ -148,27 +146,40 @@ def render(state: "GameState") -> None:
     screen.blit(bg_img, (-bg_offset_x, -bg_offset_y))
 
     for loc in SPAWN_LOCATIONS:
+        # Draw tombstone base first
         screen.blit(tombstone_img, loc)
 
     for zombie in state.zombies:
         zombie.draw(screen)
 
-    # Timer countdown (top-left)
+    # Draw hit particles 
+    for p in state.particles:
+        p.draw(screen)
+
+    # Draw grass mask in front of spawn/despawn animations (foreground)
+    for loc in SPAWN_LOCATIONS:
+        mask_pos = (
+            loc[0],
+            loc[1] + tombstone_img.get_height(),
+        )
+        screen.blit(grass_mask, mask_pos)
+
+    # Timer 
     seconds_left = state.time_left_ms // 1000
     minutes = seconds_left // 60
     seconds = seconds_left % 60
     timer_text = font.render(f"Time: {minutes:02d}:{seconds:02d}", True, (255, 255, 255))
     screen.blit(timer_text, (10, 10))
 
-    # HUD centered in upper half with score and accuracy
+    # HUD 
     accuracy = state.score / (state.score + state.miss) if state.score + state.miss != 0 else 1
     hud.set_center((screen.get_width() // 2, screen.get_height() // 4 + 40))
     hud.draw(screen, state.score, accuracy)
 
-    # Mute button (top-right)
+    # Mute
     mute_button.draw(screen)
 
-    # Game Over overlay and Restart button
+    # Game end
     if state.game_over:
         overlay.draw(screen, state.score, accuracy)
 
@@ -177,8 +188,7 @@ def render(state: "GameState") -> None:
 
     pygame.display.flip()
 
-
-# Initialize state and enter main loop
+# loop de nhin` hon
 state = GameState()
 while state.running:
     handle_events(state)
