@@ -39,21 +39,22 @@ class Zombie:
         # Current sprite starts as spawning image
         self.image = self.spawn_image
 
+        self.original_position = position
         self.position = (position[0], position[1] + 45)
         self.offset = (-5, -15)
         self.opacity = 255
         self.mute_button = mute_button
 
-        self.state = ZState.SPAWNING
-        self.spawn_duration = 60
+        self.state = ZState.SPAWNING 
+        self.spawn_duration = 60 # 60 frames -> 1 sec
         self.remaining_spawn_duration = self.spawn_duration
 
         self.spawn_start_time = pygame.time.get_ticks()
-        self.life_duration = life_duration
-        self.despawn_duration = 30
+        self.life_duration = life_duration # 3 sec - 1 - 0.5 = 1.5 sec idle
+        self.despawn_duration = 30 # 30 frames -> 0.5 sec
         self.remaining_despawn_duration = self.despawn_duration
 
-        self.movement_offset_y = -45 / self.spawn_duration
+        self.movement_offset_y = -35 / self.spawn_duration
 
         self.hitbox = self.image.get_rect(
             topleft=(
@@ -131,6 +132,10 @@ class Zombie:
             # Only when hit, switch to despawn sprite; otherwise keep idle
             if self.state == ZState.HIT:
                 self.image = self.despawn_image
+                self.position = (
+                    self.position[0],
+                    self.position[1] - 30,
+                )
 
             self.state = ZState.DESPAWNING
             return return_value

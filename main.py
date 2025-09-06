@@ -82,7 +82,7 @@ class GameState:
         self.zombies = []
         self.occupied_locations = set()
         self.time_left_ms = 0
-        self.timer = CountdownTimer(60000)
+        self.timer = CountdownTimer(1)
 
 
 def reset_run(state: "GameState") -> None:
@@ -116,8 +116,7 @@ def handle_events(state: "GameState") -> None:
 
 def update_state(state: "GameState") -> None:
     state.zombies = [z for z in state.zombies if z.state != ZState.EXPIRED]
-    state.occupied_locations = {z.position for z in state.zombies if z.state != ZState.EXPIRED}
-
+    state.occupied_locations = {z.original_position for z in state.zombies if z.state != ZState.EXPIRED}
     current_time = pygame.time.get_ticks()
     state.time_left_ms = state.timer.time_left_ms()
     if not state.game_over and current_time - state.last_spawn_time > SPAWN_INTERVAL:
@@ -152,9 +151,6 @@ def render(state: "GameState") -> None:
     for zombie in state.zombies:
         zombie.draw(screen)
 
-    # Draw hit particles 
-    for p in state.particles:
-        p.draw(screen)
 
     # Draw grass mask in front of spawn/despawn animations (foreground)
     for loc in SPAWN_LOCATIONS:
@@ -163,6 +159,10 @@ def render(state: "GameState") -> None:
             loc[1] + tombstone_img.get_height(),
         )
         screen.blit(grass_mask, mask_pos)
+
+    # Draw hit particles AFTER MASK BECAUSE THEY APPEAR ON TOP OF THEM 
+    for p in state.particles:
+        p.draw(screen)
 
     # Timer 
     seconds_left = state.time_left_ms // 1000
