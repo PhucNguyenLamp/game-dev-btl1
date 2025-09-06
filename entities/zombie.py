@@ -5,6 +5,7 @@ from pathlib import Path
 from particles.Particle import Particle
 
 asset_path = Path("assets")
+DEFAULT_ZOMBIE_HEIGHT = 128  # pixels
 
 
 # Whack-a-Zombie Game Entity
@@ -19,7 +20,25 @@ class ZState(Enum):
 class Zombie:
 
     def __init__(self, position, life_duration, mute_button):
-        self.image = pygame.image.load(asset_path / "sprites" / "zombie.png")
+        idle_img = pygame.image.load(asset_path / "sprites" / "zombie.png")
+        spawn_img = pygame.image.load(asset_path / "sprites" / "zombie_spawn.png")
+        despawn_img = pygame.image.load(asset_path / "sprites" / "zombie_despawn.png")
+
+        def scale_to_height(img: pygame.Surface, target_h: int) -> pygame.Surface:
+            w, h = img.get_size()
+            if h == 0:
+                return img
+            ratio = DEFAULT_ZOMBIE_HEIGHT / h
+            return pygame.transform.smoothscale(img, (int(w * ratio), int(h * ratio)))
+
+        # Scaler
+        self.idle_image = scale_to_height(idle_img, DEFAULT_ZOMBIE_HEIGHT)
+        self.spawn_image = scale_to_height(spawn_img, DEFAULT_ZOMBIE_HEIGHT)
+        self.despawn_image = scale_to_height(despawn_img, DEFAULT_ZOMBIE_HEIGHT)
+
+        # Current sprite starts as spawning image
+        self.image = self.spawn_image
+
         self.position = (position[0], position[1] + 45)
         self.offset = (-5, -15)
         self.opacity = 255
@@ -98,6 +117,8 @@ class Zombie:
 
             if self.remaining_spawn_duration <= 0:
                 self.state = ZState.IDLE
+                # Switch to idle sprite after finish rising
+                self.image = self.idle_image
 
         if (
             current_time - self.spawn_start_time > self.life_duration
@@ -106,6 +127,10 @@ class Zombie:
             return_value = -1
             if self.state == ZState.HIT:
                 return_value = 1
+
+            # Only when hit, switch to despawn sprite; otherwise keep idle
+            if self.state == ZState.HIT:
+                self.image = self.despawn_image
 
             self.state = ZState.DESPAWNING
             return return_value
