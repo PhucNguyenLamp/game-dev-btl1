@@ -4,19 +4,12 @@
 - Navigate to project root, and run `main.py`, Example: `~\game-dev-btl1> python main.py`
 
 ## interface 
-<img width="496" height="410" alt="image" src="https://github.com/user-attachments/assets/2832fc8d-f1de-4d9e-8063-b778d40d3824" />
+<img width="1124" height="787" alt="preview" src="https://github.com/user-attachments/assets/1acb5fac-02f9-4d77-8835-d2474727340d" />
 
 ## how to play the game
 - left click to hit the zombies
 - the sound control is on the right, hit it to toggle mute
 - score and accuracy are on the left
-
-## note
-video tutorial chung thư viện: https://www.youtube.com/watch?v=blLLtdv4tvo
-
-docs thư viện (rất có ích): https://www.pygame.org/docs/ref/mouse.html
-
-file structure chi tiết: https://chatgpt.com/s/t_68ad454177f88191baf757171dc85279
 
 ## file structure:
 ```
@@ -26,7 +19,7 @@ whack_a_zombie/
 ├─ main.py
 ├─ config.py
 ├─ game.py
-├─ managers/
+├─ managers/ # not implemented yet
 │  └─ spawn_manager.py
 ├─ entities/
 │  └─ zombie.py
@@ -48,6 +41,11 @@ whack_a_zombie/
       └─ hit.wav
 
 ```
+
+## note
+video tutorial chung thư viện: https://www.youtube.com/watch?v=blLLtdv4tvo
+docs thư viện (rất có ích): https://www.pygame.org/docs/ref/mouse.html
+
 
 
 
