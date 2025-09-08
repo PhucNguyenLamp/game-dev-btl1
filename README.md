@@ -46,7 +46,10 @@ whack_a_zombie/
 video tutorial chung thư viện: https://www.youtube.com/watch?v=blLLtdv4tvo
 docs thư viện (rất có ích): https://www.pygame.org/docs/ref/mouse.html
 
-
+##Sprite and sounds reference
+-Zombie & Tombstone & Background: ChatGPT & Google AI Studio
+-Audio: Youtube
+-Other: Internet 
 
 
 
