@@ -36,7 +36,7 @@ overlay = GameOverOverlay(font_large, font)
 # score = font.render('Whack a Zombie!', True, (255, 255, 255))
 
 bg_img = pygame.image.load("assets/sprites/bg.png")
-# scaler
+#scaler
 screen_width, screen_height = screen.get_size()
 bg_width, bg_height = bg_img.get_size()
 scale = max(screen_width / bg_width, screen_height / bg_height)
@@ -54,8 +54,8 @@ if orig_h > 0:
     new_size = (int(orig_w * scale_ratio), int(orig_h * scale_ratio))
     tombstone_img = pygame.transform.smoothscale(tombstone_img, new_size)
 
-grass_mask = pygame.image.load("assets/sprites/grass_mask.png")
-grass_mask = pygame.transform.scale(grass_mask, (96, 40))
+# grass_mask = pygame.image.load("assets/sprites/grass_mask.png")
+# grass_mask = pygame.transform.scale(grass_mask, (96, 40))
 
 SPAWN_LOCATIONS = [
     (150, 325),
@@ -88,6 +88,7 @@ class GameState:
 def reset_run(state: "GameState") -> None:
     pygame.mouse.set_visible(True)
     run_start_screen(screen, assets_path)
+    pygame.mouse.set_visible(False)
     state.zombies = []
     state.occupied_locations = set()
     state.score = 0
@@ -96,7 +97,7 @@ def reset_run(state: "GameState") -> None:
     state.last_spawn_time = 0
     state.timer.reset()
     state.game_over = False
-    pygame.mouse.set_visible(False)
+
 
 def handle_events(state: "GameState") -> None:
     for event in pygame.event.get():
@@ -117,7 +118,9 @@ def handle_events(state: "GameState") -> None:
 
 def update_state(state: "GameState") -> None:
     state.zombies = [z for z in state.zombies if z.state != ZState.EXPIRED]
+    # Track occupied slots by their spawn/original positions, not the animated current position
     state.occupied_locations = {z.original_position for z in state.zombies if z.state != ZState.EXPIRED}
+
     current_time = pygame.time.get_ticks()
     state.time_left_ms = state.timer.time_left_ms()
     if not state.game_over and current_time - state.last_spawn_time > SPAWN_INTERVAL:
@@ -152,18 +155,17 @@ def render(state: "GameState") -> None:
     for zombie in state.zombies:
         zombie.draw(screen)
 
-
-    # Draw grass mask in front of spawn/despawn animations (foreground)
-    for loc in SPAWN_LOCATIONS:
-        mask_pos = (
-            loc[0],
-            loc[1] + tombstone_img.get_height(),
-        )
-        screen.blit(grass_mask, mask_pos)
-
-    # Draw hit particles AFTER MASK BECAUSE THEY APPEAR ON TOP OF THEM 
+    # Draw hit particles 
     for p in state.particles:
         p.draw(screen)
+
+    # Draw grass mask in front of spawn/despawn animations (foreground)
+    # for loc in SPAWN_LOCATIONS:
+    #     mask_pos = (
+    #         loc[0],
+    #         loc[1] + tombstone_img.get_height(),
+    #     )
+    #     screen.blit(grass_mask, mask_pos)
 
     # Timer 
     seconds_left = state.time_left_ms // 1000

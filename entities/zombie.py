@@ -36,7 +36,6 @@ class Zombie:
         self.spawn_image = scale_to_height(spawn_img, DEFAULT_ZOMBIE_HEIGHT)
         self.despawn_image = scale_to_height(despawn_img, DEFAULT_ZOMBIE_HEIGHT)
 
-        # Current sprite starts as spawning image
         self.image = self.spawn_image
 
         self.original_position = position
@@ -44,6 +43,8 @@ class Zombie:
         self.offset = (-5, -15)
         self.opacity = 255
         self.mute_button = mute_button
+
+        self.ground_y = self.original_position[1] + DEFAULT_ZOMBIE_HEIGHT
 
         self.state = ZState.SPAWNING 
         self.spawn_duration = 60 # 60 frames -> 1 sec
@@ -67,10 +68,14 @@ class Zombie:
     def draw(self, screen):
         if self.state != ZState.EXPIRED:
             self.image.set_alpha(self.opacity)
+            previous_clip = screen.get_clip()
+            ground_clip_rect = pygame.Rect(0, 0, screen.get_width(), int(self.ground_y))
+            screen.set_clip(ground_clip_rect)
             screen.blit(
                 self.image,
                 (self.position[0] + self.offset[0], self.position[1] + self.offset[1]),
             )
+            screen.set_clip(previous_clip)
             # pygame.draw.rect(screen, (255, 0, 0), self.hitbox, 2)
 
     def handle_event(self, event, particles):
@@ -164,7 +169,6 @@ class Zombie:
 
 # Spawn Zombie at Random Locations
 def spawn_zombie(locations, life_duration, occupied_locations, mute_button):
-    # Filter out occupied locations
     free_locations = [loc for loc in locations if loc not in occupied_locations]
     if not free_locations:
         return None
