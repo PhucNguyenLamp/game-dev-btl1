@@ -66,7 +66,8 @@ game-dev-btl1/
 ## Sprite and sounds reference
 - Zombie & Tombstone & Background: ChatGPT & Google AI Studio
 - Audio: [Youtube](https://youtu.be/ehMCqtBBUXU?si=lqXwqGVXCfvj5hLL)
-- Other: [Inte](https://terraria.fandom.com/wiki/Terraria_Wiki) 
+- Other: [Terraria Wiki](https://terraria.fandom.com/wiki/Terraria_Wiki) 
+
 
 
 
